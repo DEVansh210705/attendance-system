@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Attendance Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="navbar">
+    <h2>Attendance Dashboard</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <table id="attendance-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Date & Time</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAGHDn3Xwt2ZtAP8mXl58oY1J7tyi1PysA",
+      authDomain: "attendance-system-b980b.firebaseapp.com",
+      databaseURL: "https://attendance-system-b980b-default-rtdb.firebaseio.com",
+      projectId: "attendance-system-b980b",
+      storageBucket: "attendance-system-b980b.firebasestorage.app",
+      messagingSenderId: "32512779391",
+      appId: "1:32512779391:web:b10c8599ba132a66ba8b4a",
+      measurementId: "G-YTHN9771QK"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        loadData();
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => window.location.href = "login.html");
+    }
+
+    function loadData() {
+      const tableBody = document.querySelector("#attendance-table tbody");
+      const attendanceRef = db.ref("attendance");
+
+      attendanceRef.on("value", (snapshot) => {
+        tableBody.innerHTML = "";
+        snapshot.forEach((child) => {
+          const name = child.key;
+          const time = child.val().time;
+
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${name}</td><td>${time}</td>`;
+          tableBody.appendChild(row);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
